@@ -2,20 +2,20 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>謎画像スキャナ</title>
+  <title>色補正で謎を解け！</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       padding: 1rem;
-      background: #f0f0f0;
     }
-    canvas {
+    video {
       width: 100%;
       max-width: 500px;
       border: 1px solid #ccc;
-      margin: 1rem 0;
+      margin-bottom: 1rem;
+      display: block;
     }
     .controls {
       max-width: 500px;
@@ -32,11 +32,10 @@
   </style>
 </head>
 <body>
-  <h1>隠されたメッセージを見つけよう！</h1>
-  <p>スライダーを調整して、カメラで謎の模様をスキャンしてみよう！</p>
+  <h1>謎の模様を見破れ！</h1>
+  <p>スライダーを動かして、見えない文字を探そう！</p>
 
-  <video id="video" autoplay playsinline muted style="display: none;"></video>
-  <canvas id="canvas"></canvas>
+  <video id="video" autoplay playsinline muted></video>
 
   <div class="controls">
     <label for="hue">色相（Hue）</label>
@@ -49,12 +48,14 @@
 
   <script>
     const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-
     const hue = document.getElementById("hue");
     const contrast = document.getElementById("contrast");
     const brightness = document.getElementById("brightness");
+
+    function updateFilter() {
+      video.style.filter =
+        `hue-rotate(${hue.value}deg) contrast(${contrast.value}%) brightness(${brightness.value}%)`;
+    }
 
     async function startCamera() {
       try {
@@ -62,24 +63,15 @@
           video: { facingMode: "environment" }
         });
         video.srcObject = stream;
-
-        video.onloadedmetadata = () => {
-          video.play();
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          drawFrame();
-        };
+        updateFilter();
       } catch (err) {
         alert("カメラ起動エラー：" + err.message);
       }
     }
 
-    function drawFrame() {
-      // 修正ポイント：filter を 1 行でしっかり設定
-      ctx.filter = `hue-rotate(${hue.value}deg) contrast(${contrast.value}%) brightness(${brightness.value}%)`;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      requestAnimationFrame(drawFrame); // 継続描画
-    }
+    hue.addEventListener("input", updateFilter);
+    contrast.addEventListener("input", updateFilter);
+    brightness.addEventListener("input", updateFilter);
 
     startCamera();
   </script>
