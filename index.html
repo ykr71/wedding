@@ -2,23 +2,22 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>フィルターで文字を浮かび上がらせよう</title>
+  <title>謎の画像をスキャン</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       padding: 2rem;
-      background-color: #f0f0f0;
     }
-    video, canvas {
-      width: 90%;
-      max-width: 480px;
-      border: 1px solid #ccc;
+    canvas {
+      width: 100%;
+      max-width: 500px;
       margin-bottom: 1rem;
+      border: 1px solid #ccc;
     }
     .controls {
-      max-width: 480px;
+      max-width: 500px;
       margin: 0 auto;
     }
     .controls label {
@@ -31,14 +30,14 @@
   </style>
 </head>
 <body>
-  <h1>謎画像スキャナ</h1>
-  <p>カメラを起動して、スライダーを調整してみよう！</p>
+  <h1>隠されたメッセージを見つけよう！</h1>
+  <p>紙にある謎の模様をカメラで映して、スライダーで調整しよう。</p>
 
   <video id="video" autoplay playsinline style="display:none;"></video>
   <canvas id="canvas" width="640" height="480"></canvas>
 
   <div class="controls">
-    <label for="hue">色相 (Hue)</label>
+    <label for="hue">色相（Hue）</label>
     <input type="range" id="hue" min="0" max="360" value="0">
     <label for="contrast">コントラスト</label>
     <input type="range" id="contrast" min="50" max="300" value="100">
@@ -57,10 +56,12 @@
 
     async function startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" }
+        });
         video.srcObject = stream;
       } catch (err) {
-        alert("カメラが起動できません：" + err.message);
+        alert("カメラの起動に失敗しました：" + err.message);
       }
     }
 
@@ -71,18 +72,11 @@
         brightness(${brightness.value}%)
       `;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      requestAnimationFrame(drawFrame);
+      requestAnimationFrame(drawFrame); // ← 継続的に更新！
     }
 
-    // スライダー変化時にもすぐ反映
-    [hue, contrast, brightness].forEach(input => {
-      input.addEventListener("input", () => {
-        drawFrame(); // 次フレームを即反映
-      });
-    });
-
     startCamera().then(() => {
-      requestAnimationFrame(drawFrame);
+      requestAnimationFrame(drawFrame); // ← 初回スタート！
     });
   </script>
 </body>
