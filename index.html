@@ -1,21 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>謎解き：隠れ文字を探せ！</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    canvas, video {
+      width: 90%;
+      max-width: 500px;
+      margin: 1rem 0;
+      border: 1px solid #ccc;
+    }
+    input[type="range"] {
+      width: 300px;
+    }
+  </style>
+</head>
 <body>
-  <h1>謎解き 問題1</h1>
-  <p>ヒントは「高いところ」。見上げてごらん！</p>
+  <h1>カメラで謎の画像をスキャンせよ！</h1>
+  <p>スライダーで色を調整して、隠されたメッセージを見つけよう！</p>
 
-  <button id="start-camera">カメラを起動する</button>
-  <video id="video" autoplay playsinline></video>
+  <video id="video" autoplay playsinline style="display: none;"></video>
+  <canvas id="canvas" width="640" height="480"></canvas>
+
+  <div>
+    <label>色相 (Hue)</label><br>
+    <input type="range" id="hue" min="0" max="360" value="0"><br>
+    <label>コントラスト</label><br>
+    <input type="range" id="contrast" min="100" max="400" value="100"><br>
+    <label>明るさ</label><br>
+    <input type="range" id="brightness" min="50" max="150" value="100">
+  </div>
 
   <script>
-    const startBtn = document.getElementById("start-camera");
     const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
 
-    startBtn.addEventListener("click", async () => {
+    const hueSlider = document.getElementById("hue");
+    const contrastSlider = document.getElementById("contrast");
+    const brightnessSlider = document.getElementById("brightness");
+
+    async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         video.srcObject = stream;
+        video.onloadedmetadata = () => video.play();
       } catch (err) {
         alert("カメラの起動に失敗しました：" + err.message);
       }
-    });
+    }
+
+    function applyFilter() {
+      const hue = hueSlider.value;
+      const contrast = contrastSlider.value;
+      const brightness = brightnessSlider.value;
+
+      ctx.filter = `hue-rotate(${hue}deg) contrast(${contrast}%) brightness(${brightness}%)`;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      requestAnimationFrame(applyFilter);
+    }
+
+    hueSlider.addEventListener("input", applyFilter);
+    contrastSlider.addEventListener("input", applyFilter);
+    brightnessSlider.addEventListener("input", applyFilter);
+
+    startCamera().then(applyFilter);
   </script>
 </body>
+</html>
