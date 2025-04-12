@@ -1,24 +1,21 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>謎解き 問題1</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-    button {
-      font-size: 1.2rem;
-      padding: 1rem 2rem;
-    }
-  </style>
-</head>
 <body>
   <h1>謎解き 問題1</h1>
-  <p>ヒントは「高いところ」。<br>見上げてごらん！</p>
-  <button onclick="alert('カメラ起動は次のステップで実装予定')">カメラを起動する</button>
+  <p>ヒントは「高いところ」。見上げてごらん！</p>
+
+  <button id="start-camera">カメラを起動する</button>
+  <video id="video" autoplay playsinline></video>
+
+  <script>
+    const startBtn = document.getElementById("start-camera");
+    const video = document.getElementById("video");
+
+    startBtn.addEventListener("click", async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("カメラの起動に失敗しました：" + err.message);
+      }
+    });
+  </script>
 </body>
-</html>
