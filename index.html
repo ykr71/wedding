@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>謎の画像スキャン</title>
+  <title>謎画像スキャナ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -21,22 +21,30 @@
       max-width: 500px;
       margin: 0 auto;
     }
+    .controls label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
     input[type="range"] {
       width: 100%;
     }
   </style>
 </head>
 <body>
-  <h1>隠されたメッセージを探せ！</h1>
-  <p>スライダーで色調を変えて謎を解こう！</p>
+  <h1>隠されたメッセージを見つけよう！</h1>
+  <p>スライダーを調整して、カメラで謎の模様をスキャンしてみよう！</p>
 
-  <video id="video" autoplay playsinline muted style="display:none;"></video>
+  <video id="video" autoplay playsinline muted style="display: none;"></video>
   <canvas id="canvas"></canvas>
 
   <div class="controls">
-    <label>色相（Hue）<input type="range" id="hue" min="0" max="360" value="0"></label>
-    <label>コントラスト<input type="range" id="contrast" min="50" max="300" value="100"></label>
-    <label>明るさ<input type="range" id="brightness" min="50" max="150" value="100"></label>
+    <label for="hue">色相（Hue）</label>
+    <input type="range" id="hue" min="0" max="360" value="0">
+    <label for="contrast">コントラスト</label>
+    <input type="range" id="contrast" min="50" max="300" value="100">
+    <label for="brightness">明るさ</label>
+    <input type="range" id="brightness" min="50" max="150" value="100">
   </div>
 
   <script>
@@ -67,13 +75,10 @@
     }
 
     function drawFrame() {
-      ctx.filter = `
-        hue-rotate(${hue.value}deg)
-        contrast(${contrast.value}%)
-        brightness(${brightness.value}%)
-      `;
+      // 修正ポイント：filter を 1 行でしっかり設定
+      ctx.filter = `hue-rotate(${hue.value}deg) contrast(${contrast.value}%) brightness(${brightness.value}%)`;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      requestAnimationFrame(drawFrame);
+      requestAnimationFrame(drawFrame); // 継続描画
     }
 
     startCamera();
