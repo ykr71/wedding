@@ -2,27 +2,24 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>謎の画像をスキャン</title>
+  <title>謎の画像スキャン</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      padding: 2rem;
+      padding: 1rem;
+      background: #f0f0f0;
     }
     canvas {
       width: 100%;
       max-width: 500px;
-      margin-bottom: 1rem;
       border: 1px solid #ccc;
+      margin: 1rem 0;
     }
     .controls {
       max-width: 500px;
       margin: 0 auto;
-    }
-    .controls label {
-      display: block;
-      margin-top: 1rem;
     }
     input[type="range"] {
       width: 100%;
@@ -30,19 +27,16 @@
   </style>
 </head>
 <body>
-  <h1>隠されたメッセージを見つけよう！</h1>
-  <p>紙にある謎の模様をカメラで映して、スライダーで調整しよう。</p>
+  <h1>隠されたメッセージを探せ！</h1>
+  <p>スライダーで色調を変えて謎を解こう！</p>
 
-  <video id="video" autoplay playsinline style="display:none;"></video>
-  <canvas id="canvas" width="640" height="480"></canvas>
+  <video id="video" autoplay playsinline muted style="display:none;"></video>
+  <canvas id="canvas"></canvas>
 
   <div class="controls">
-    <label for="hue">色相（Hue）</label>
-    <input type="range" id="hue" min="0" max="360" value="0">
-    <label for="contrast">コントラスト</label>
-    <input type="range" id="contrast" min="50" max="300" value="100">
-    <label for="brightness">明るさ</label>
-    <input type="range" id="brightness" min="50" max="150" value="100">
+    <label>色相（Hue）<input type="range" id="hue" min="0" max="360" value="0"></label>
+    <label>コントラスト<input type="range" id="contrast" min="50" max="300" value="100"></label>
+    <label>明るさ<input type="range" id="brightness" min="50" max="150" value="100"></label>
   </div>
 
   <script>
@@ -60,8 +54,15 @@
           video: { facingMode: "environment" }
         });
         video.srcObject = stream;
+
+        video.onloadedmetadata = () => {
+          video.play();
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          drawFrame();
+        };
       } catch (err) {
-        alert("カメラの起動に失敗しました：" + err.message);
+        alert("カメラ起動エラー：" + err.message);
       }
     }
 
@@ -72,12 +73,10 @@
         brightness(${brightness.value}%)
       `;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      requestAnimationFrame(drawFrame); // ← 継続的に更新！
+      requestAnimationFrame(drawFrame);
     }
 
-    startCamera().then(() => {
-      requestAnimationFrame(drawFrame); // ← 初回スタート！
-    });
+    startCamera();
   </script>
 </body>
 </html>
